@@ -1,24 +1,44 @@
+; =========================================
+; Descripción:
+;   Imprime en pantalla el carácter almacenado
+;   en el registro AL.
+;
+; Entrada:
+;   AL = carácter a imprimir
+;
+; Salida:
+;   Ninguna
+; =========================================
+
+SECTION .bss
+char_buffer resb 1              ; buffer temporal de 1 byte para guardar el carácter
+
 SECTION .text
 global print_char
 
-; ---------------------------------
+; -----------------------------------------
 ; print_char
-; Entrada:
-;   AL = caracter a imprimir
-; ---------------------------------
-
+; Imprime el carácter contenido en AL
+; -----------------------------------------
 print_char:
 
-    push ebp
-    mov ebp, esp
+    push ebp                    ; guardar el valor anterior de EBP
+    mov ebp, esp                ; crear marco de pila de la función
 
-    ; TODO:
-    ; 1. Guardar el caracter en memoria
-    ; 2. Usar syscall write
-    ; 3. Imprimir 1 byte
+    ; Guardar el carácter que viene en AL dentro del buffer
+    mov [char_buffer], al
 
-    ; write(fd=1, buffer, 1)
+    ; Llamada al sistema write
+    ; eax = 4  -> sys_write
+    ; ebx = 1  -> stdout
+    ; ecx = dirección del buffer
+    ; edx = 1  -> imprimir 1 byte
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, char_buffer
+    mov edx, 1
+    int 0x80
 
-    mov esp, ebp
-    pop ebp
-    ret
+    mov esp, ebp                ; restaurar el puntero de pila
+    pop ebp                     ; restaurar el EBP anterior
+    ret                         ; regresar al programa llamador
